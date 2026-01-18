@@ -88,15 +88,27 @@ const KEY_SYNONYMS = {
   occupation: ["occupation", "job title", "profession", "designation", "role"]
 };
 
-function keyTokens() {
+function buildTokens(profile) {
   const t = {};
   Object.keys(KEY_SYNONYMS).forEach(k => {
     t[k] = KEY_SYNONYMS[k].map(tokenize);
   });
+  // Add dynamic keys from profile
+  if (profile) {
+      Object.keys(profile).forEach(k => {
+          if (!t[k]) {
+              const s1 = k;
+              const s2 = k.replace(/_/g, " ");
+              const s3 = k.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+              const unique = [...new Set([s1, s2, s3])];
+              t[k] = unique.map(tokenize);
+          }
+      });
+  }
   return t;
 }
 
-const KEY_TOKENS = keyTokens();
+let KEY_TOKENS = buildTokens(null);
 
 function scoreTokens(fieldTokens, key) {
   const syns = KEY_TOKENS[key];
@@ -489,6 +501,10 @@ function loadState(cb) {
     AFP_STATE.profiles = r.profiles || null;
     AFP_STATE.activeProfile = r.activeProfile || "default";
     AFP_STATE.autoFillEnabled = typeof r.autoFillEnabled === "undefined" ? false : !!r.autoFillEnabled;
+    
+    const p = AFP_STATE.profiles && AFP_STATE.activeProfile ? AFP_STATE.profiles[AFP_STATE.activeProfile] : null;
+    KEY_TOKENS = buildTokens(p);
+    
     cb && cb();
   });
 }

@@ -6,12 +6,26 @@ function setStorage(obj) {
   return new Promise(r => chrome.storage.local.set(obj, r));
 }
 
+const STANDARD_FIELDS = [
+  "name", "name_first", "name_last", "email", "phone", "rollNo", 
+  "college", "university", "branch", "year", "graduation", 
+  "city", "state", "pincode", "gender", "terms", 
+  "linkedin", "github", "skills", "username", "title", "age",
+  "name_middle", "name_suffix", "address_line_1", "address_line_2", "address_line_3",
+  "full_address", "zip_code", "country_code", "country", "language",
+  "birth_day", "birth_month", "birth_year", "company", "occupation"
+];
+
 function renderForm(container, profile) {
   container.innerHTML = "";
   const grid = document.createElement("div");
   grid.className = "grid";
-  const fields = Object.keys(profile);
-  for (const k of fields) {
+  
+  // Union of standard fields and whatever is in the profile
+  const allKeys = new Set([...STANDARD_FIELDS, ...Object.keys(profile)]);
+  const sortedKeys = Array.from(allKeys).sort();
+
+  for (const k of sortedKeys) {
     const l = document.createElement("label");
     l.textContent = k;
     let input;
@@ -108,6 +122,36 @@ document.addEventListener("DOMContentLoaded", () => {
     sel.value = next;
     renderForm(document.getElementById("form"), s.profiles[next]);
     document.getElementById("status").textContent = "Profile deleted.";
+  });
+
+  document.getElementById("addFieldBtn").addEventListener("click", async () => {
+    const key = document.getElementById("newFieldKey").value.trim();
+    const val = document.getElementById("newFieldValue").value.trim();
+    if (!key) {
+      document.getElementById("status").textContent = "Field name is required.";
+      return;
+    }
+    
+    // Get current state
+    const s = await getStorage(["profiles", "activeProfile"]);
+    if (!s.activeProfile || !s.profiles[s.activeProfile]) {
+        document.getElementById("status").textContent = "No active profile to add to.";
+        return;
+    }
+
+    // Update profile in memory
+    s.profiles[s.activeProfile][key] = val;
+
+    // Save to storage
+    await setStorage({ profiles: s.profiles });
+
+    // Re-render
+    renderForm(document.getElementById("form"), s.profiles[s.activeProfile]);
+
+    // Clear inputs and feedback
+    document.getElementById("newFieldKey").value = "";
+    document.getElementById("newFieldValue").value = "";
+    document.getElementById("status").textContent = `Field '${key}' added.`;
   });
   document.getElementById("fillNow").addEventListener("click", async () => {
     const tabs = await new Promise(r => chrome.tabs.query({ active: true, currentWindow: true }, r));
