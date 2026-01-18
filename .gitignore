@@ -1,0 +1,17 @@
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Node/NPM (if you decide to use them later)
+node_modules/
+package-lock.json
+npm-debug.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Extension builds
+*.zip
+*.crx
