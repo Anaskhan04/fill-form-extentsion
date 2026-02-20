@@ -252,6 +252,20 @@ function fieldCandidates(el) {
 function valueForKey(profile, key) {
   if (key === "name_first") return splitName(profile.name || "").first;
   if (key === "name_last") return splitName(profile.name || "").last;
+  
+  // Handle nested Skills object
+  if (profile.skills && typeof profile.skills === 'object' && !Array.isArray(profile.skills)) {
+    if (key === "skills") {
+      // Flattens all skill categories into one string for form fields
+      return Object.values(profile.skills).flat().join(", ");
+    }
+  }
+
+  // Handle nested Hackathon object
+  if (profile.hackathon && key in profile.hackathon) {
+    return profile.hackathon[key];
+  }
+
   return profile[key] || "";
 }
 
