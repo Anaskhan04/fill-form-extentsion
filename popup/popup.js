@@ -26,13 +26,23 @@ function renderForm(container, profile) {
   const sortedKeys = Array.from(allKeys).sort();
 
   for (const k of sortedKeys) {
-    const l = document.createElement("label");
-    l.textContent = k;
-    let input;
-    if (k === "skills") {
-      input = document.createElement("textarea");
-      input.value = profile[k] || "";
-    } else if (k === "gender") {
+  const l = document.createElement("label");
+  l.textContent = k;
+  let input;
+  
+  // Get the value, handling nested objects for the UI
+  let val = profile[k];
+  if (k === "skills" && typeof val === 'object') {
+    val = Object.values(val).flat().join(", ");
+  } else if (k === "hackathon" && typeof val === 'object') {
+    // This allows editing hackathon as a JSON string in the popup
+    val = JSON.stringify(val);
+  }
+
+  if (k === "skills" || k === "hackathon") {
+    input = document.createElement("textarea");
+    input.value = val || "";
+  } else if (k === "gender") {
       input = document.createElement("select");
       ["Male","Female","Other"].forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; input.appendChild(o); });
       input.value = profile[k] || "Male";
@@ -71,8 +81,13 @@ function gatherProfile() {
   const inputs = document.querySelectorAll("#form input, #form textarea, #form select");
   const p = {};
   inputs.forEach(i => {
-    if (i.type === "checkbox") p[i.name] = i.checked;
-    else p[i.name] = i.value;
+    if (i.type === "checkbox") {
+      p[i.name] = i.checked;
+    } else if (i.name === "hackathon") {
+      try { p[i.name] = JSON.parse(i.value); } catch(e) { p[i.name] = i.value; }
+    } else {
+      p[i.name] = i.value;
+    }
   });
   return p;
 }
