@@ -1,45 +1,73 @@
 const defaultProfiles = {
   default: {
-    name: "John Doe",
-    name_first: "John",
-    name_last: "Doe",
-    email: "example@email.com",
-    phone: "1234567890",
-    rollNo: "000000",
-    college: "Your College Name",
-    university: "Your University",
-    branch: "Computer Science",
-    year: "1st Year",
-    graduation: "2028",
-    city: "New York",
-    state: "NY",
-    pincode: "10001",
-    gender: "Male",
-    terms: true,
-    linkedin: "https://linkedin.com/in/username",
-    github: "https://github.com/username",
-    skills: "HTML, CSS, JavaScript",
-    username: "johndoe",
-    title: "Mr",
-    age: "25",
+    // Personal Details
+    name: "",
+    name_first: "",
     name_middle: "",
+    name_last: "",
     name_suffix: "",
-    address_line_1: "123 Main St",
+    email: "",
+    phone: "",
+    username: "",
+    gender: "",
+    age: "",
+    title: "",
+
+    // Education
+    college: "",
+    university: "",
+    course: "",
+    branch: "",
+    year: "",
+    graduation: "",
+    rollNo: "",
+
+    // Address
+    city: "",
+    state: "",
+    pincode: "",
+    address_line_1: "",
     address_line_2: "",
     address_line_3: "",
-    full_address: "123 Main St, New York, NY",
-    zip_code: "10001",
-    country_code: "+1",
-    country: "USA",
-    language: "English",
-    birth_day: "01",
-    birth_month: "01",
-    birth_year: "2000",
-    company: "Example Corp",
-    occupation: "Student",
-    
+    full_address: "",
+    zip_code: "",
+    country: "",
+    country_code: "",
+
+    // Links
+    linkedin: "",
+    github: "",
+    portfolio: "",
+
+    // Skills
+    skills: {
+      programming: [],
+      databases: [],
+      tools: [],
+      other: []
+    },
+
+    // Hackathon Details
+    hackathon: {
+      teamName: "",
+      teamSize: "",
+      projectTitle: "",
+      theme: ""
+    },
+
+    // Professional
+    company: "",
+    occupation: "",
+
+    // Misc
+    language: "",
+    birth_day: "",
+    birth_month: "",
+    birth_year: "",
+    terms: false
   }
 };
+
 
 function initDefaults() {
   chrome.storage.local.get(["profiles", "activeProfile", "autoFillEnabled"], r => {
