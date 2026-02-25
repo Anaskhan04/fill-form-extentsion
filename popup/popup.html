@@ -9,28 +9,43 @@
 <body>
   <div class="wrap">
     <h1>AutoForm Pro</h1>
-    <div class="row">
-      <label>Active Profile</label>
-      <select id="profileSelect"></select>
-    </div>
-    <div id="form"></div>
-    <div class="add-custom-field">
+
+    <div id="onboarding" class="onboarding hidden">
+      <p>Create your first profile to start autofilling forms.</p>
       <div class="row">
-        <input id="newFieldKey" placeholder="Field Name" style="width: 40%">
-        <input id="newFieldValue" placeholder="Value" style="width: 50%">
-        <button id="addFieldBtn" title="Add Field">+</button>
+        <input id="newProfileName" placeholder="New profile name">
+        <button id="addProfile">Add Profile</button>
       </div>
     </div>
-    <div class="actions">
-      <button id="fillNow">Fill Now</button>
-      <button id="clearFields" style="background-color: #f44336;">Clear Fields</button>
-      <button id="saveProfile">Save Profile</button>
+
+    <div id="editor">
+      <div class="row">
+        <label>Active Profile</label>
+        <select id="profileSelect"></select>
+      </div>
+      <div id="form"></div>
+
+      <div class="add-custom-field">
+        <div class="row">
+          <input id="newFieldKey" placeholder="Field Name" class="field-name-input">
+          <input id="newFieldValue" placeholder="Value" class="field-value-input">
+          <button id="addFieldBtn" title="Add Field">+</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="fillNow">Fill Now</button>
+        <button id="clearFields" class="danger">Clear Fields</button>
+        <button id="saveProfile">Save Profile</button>
+      </div>
+
+      <div class="profiles">
+        <input id="newProfileNameEditor" placeholder="New profile name">
+        <button id="addProfileEditor">Add Profile</button>
+        <button id="deleteProfile" class="danger">Delete Profile</button>
+      </div>
     </div>
-    <div class="profiles">
-      <input id="newProfileName" placeholder="New profile name">
-      <button id="addProfile">Add Profile</button>
-      <button id="deleteProfile">Delete Profile</button>
-    </div>
+
     <div id="status"></div>
     <div class="footer">
       <a href="../options/options.html" target="_blank">Open Settings</a>
@@ -38,4 +53,4 @@
   </div>
   <script src="popup.js"></script>
 </body>
-<html>
+</html>
