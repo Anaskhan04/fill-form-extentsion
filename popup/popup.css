@@ -1,18 +1,197 @@
-.wrap { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 12px; width: 360px; }
-h1 { font-size: 18px; margin: 0 0 8px; }
-.row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-label { width: 140px; font-size: 12px; color: #374151; }
-input[type=text], input[type=email], input[type=tel], input[type=url], input[type=number], select, textarea { width: 100%; padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; }
-textarea { min-height: 60px; }
-.actions { display: flex; gap: 8px; margin-top: 8px; }
-button { padding: 8px 10px; border: 0; border-radius: 6px; background: #2563eb; color: #fff; font-size: 12px; cursor: pointer; }
-button#saveProfile { background: #059669; }
-.profiles { display: flex; gap: 8px; margin-top: 8px; }
-#newProfileName { flex: 1; }
-#status { margin-top: 8px; font-size: 12px; color: #111827; }
-.footer { margin-top: 8px; font-size: 12px; }
-.grid { display: grid; grid-template-columns: 140px 1fr; gap: 8px; }
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --secondary: #4b5563;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --success: #10b981;
+  --bg: #f9fafb;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
 
+.wrap { 
+  font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+  padding: 16px; 
+  width: 380px; 
+  background: var(--bg);
+  color: var(--text);
+}
 
-.add-custom-field { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; }
-.add-custom-field .row { margin-bottom: 0; }
+h1 { 
+  font-size: 20px; 
+  font-weight: 700; 
+  margin: 0 0 16px; 
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  margin-bottom: 12px; 
+}
+
+label { 
+  font-size: 13px; 
+  font-weight: 600; 
+  color: var(--secondary);
+  text-transform: capitalize;
+}
+
+input, select, textarea { 
+  width: 100%; 
+  padding: 8px 12px; 
+  border: 1px solid var(--border); 
+  border-radius: 8px; 
+  font-size: 13px; 
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+textarea { min-height: 80px; resize: vertical; }
+
+.actions { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 10px; 
+  margin-bottom: 16px; 
+}
+
+button { 
+  padding: 10px 14px; 
+  border: 0; 
+  border-radius: 8px; 
+  background: var(--primary); 
+  color: #fff; 
+  font-size: 13px; 
+  font-weight: 600; 
+  cursor: pointer; 
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button:hover { 
+  background: var(--primary-hover);
+  box-shadow: var(--shadow);
+}
+
+button:active { transform: translateY(1px); }
+
+#clearFields { background: var(--danger); }
+#clearFields:hover { background: var(--danger-hover); }
+
+#toggleEdit { background: var(--secondary); }
+#toggleEdit:hover { background: #374151; }
+
+#saveProfile { background: var(--success); }
+#saveProfile:hover { background: #059669; }
+
+.grid { 
+  display: grid; 
+  grid-template-columns: 120px 1fr 32px; 
+  gap: 12px; 
+  align-items: center; 
+}
+
+.hidden { display: none !important; }
+
+#editContainer { 
+  margin-top: 16px; 
+  padding: 16px; 
+  background: #fff; 
+  border-radius: 12px; 
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.remove-field-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.remove-field-btn:hover { 
+  background: #fee2e2; 
+  color: var(--danger); 
+  border-color: #fca5a5;
+  box-shadow: none;
+}
+
+#status { 
+  margin-top: 16px; 
+  font-size: 13px; 
+  color: var(--primary); 
+  font-weight: 500;
+  padding: 8px;
+  border-radius: 6px;
+  background: rgba(37, 99, 235, 0.05);
+  text-align: center;
+  min-height: 20px;
+}
+
+#status:empty { display: none; }
+
+#form { 
+  max-height: 350px; 
+  overflow-y: auto; 
+  padding-right: 8px; 
+}
+
+#form::-webkit-scrollbar { width: 6px; }
+#form::-webkit-scrollbar-track { background: transparent; }
+#form::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+.footer { 
+  margin-top: 20px; 
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 12px; 
+  display: flex;
+  justify-content: center;
+}
+
+.footer a { 
+  color: var(--text-muted); 
+  text-decoration: none; 
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.footer a:hover { color: var(--primary); }
+
+.add-custom-field { 
+  margin-top: 20px; 
+  padding-top: 16px; 
+  border-top: 1px dashed var(--border); 
+}
+
+#setupView { padding: 32px 16px; text-align: center; }
+#setupView p { margin-bottom: 20px; color: var(--text-muted); font-size: 14px; line-height: 1.5; }
+#setupView .row { flex-direction: column; gap: 16px; }
+#initialProfileName { width: 100%; height: 42px; font-size: 14px; }
+#createFirstProfile { width: 100%; padding: 12px; font-size: 14px; }

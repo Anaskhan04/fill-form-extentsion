@@ -72,8 +72,9 @@ const defaultProfiles = {
 function initDefaults() {
   chrome.storage.local.get(["profiles", "activeProfile", "autoFillEnabled"], r => {
     const updates = {};
-    if (!r.profiles) updates.profiles = defaultProfiles;
-    if (!r.activeProfile) updates.activeProfile = "default";
+    // Don't create a default profile anymore, let the user create one in the popup
+    if (!r.profiles) updates.profiles = {}; 
+    if (!r.activeProfile) updates.activeProfile = "";
     updates.autoFillEnabled = false;
     chrome.storage.local.set(updates);
   });

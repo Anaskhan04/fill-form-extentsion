@@ -7,42 +7,58 @@ function setStorage(obj) {
 }
 
 const STANDARD_FIELDS = [
-  "name", "name_first", "name_last", "email", "phone", "rollNo", 
-  "college", "university", "branch", "year", "graduation", 
-  "city", "state", "pincode", "gender", "terms", 
-  "linkedin", "github", "skills", "username", "title", "age",
-  "name_middle", "name_suffix", "address_line_1", "address_line_2", "address_line_3",
-  "full_address", "zip_code", "country_code", "country", "language",
-  "birth_day", "birth_month", "birth_year", "company", "occupation"
+  // Personal
+  "name", "name_first", "name_middle", "name_last", "name_suffix", "gender", "age", "title",
+  // Contact
+  "email", "phone",
+  // Address
+  "address_line_1", "address_line_2", "address_line_3", "full_address", "city", "state", "pincode", "zip_code", "country", "country_code",
+  // Education
+  "college", "university", "branch", "year", "graduation", "rollNo",
+  // Professional
+  "company", "occupation",
+  // Social/Links
+  "linkedin", "github", "username",
+  // Others
+  "skills", "language", "birth_day", "birth_month", "birth_year", "terms"
 ];
 
 function renderForm(container, profile) {
   container.innerHTML = "";
   const grid = document.createElement("div");
-  grid.className = "grid";
+  grid.className = "grid edit-mode";
   
-  // Union of standard fields and whatever is in the profile
-  const allKeys = new Set([...STANDARD_FIELDS, ...Object.keys(profile)]);
-  const sortedKeys = Array.from(allKeys).sort();
+  // Sort keys based on STANDARD_FIELDS order, then alphabetically for custom fields
+  const allKeys = Object.keys(profile);
+  const sortedKeys = allKeys.sort((a, b) => {
+    const idxA = STANDARD_FIELDS.indexOf(a);
+    const idxB = STANDARD_FIELDS.indexOf(b);
+    
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
+    return a.localeCompare(b);
+  });
 
   for (const k of sortedKeys) {
-  const l = document.createElement("label");
-  l.textContent = k;
-  let input;
-  
-  // Get the value, handling nested objects for the UI
-  let val = profile[k];
-  if (k === "skills" && typeof val === 'object') {
-    val = Object.values(val).flat().join(", ");
-  } else if (k === "hackathon" && typeof val === 'object') {
-    // This allows editing hackathon as a JSON string in the popup
-    val = JSON.stringify(val);
-  }
+    const l = document.createElement("label");
+    // Format label to be more readable (e.g., address_line_1 -> Address Line 1)
+    l.textContent = k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    let input;
+    
+    // Get the value, handling nested objects for the UI
+    let val = profile[k];
+    if (k === "skills" && typeof val === 'object') {
+      val = Object.values(val).flat().join(", ");
+    } else if (k === "hackathon" && typeof val === 'object') {
+      // This allows editing hackathon as a JSON string in the popup
+      val = JSON.stringify(val);
+    }
 
-  if (k === "skills" || k === "hackathon") {
-    input = document.createElement("textarea");
-    input.value = val || "";
-  } else if (k === "gender") {
+    if (k === "skills" || k === "hackathon") {
+      input = document.createElement("textarea");
+      input.value = val || "";
+    } else if (k === "gender") {
       input = document.createElement("select");
       ["Male","Female","Other"].forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; input.appendChild(o); });
       input.value = profile[k] || "Male";
@@ -56,8 +72,28 @@ function renderForm(container, profile) {
       input.type = (k === "email") ? "email" : (k === "phone") ? "tel" : (k === "github" || k === "linkedin") ? "url" : "text";
     }
     input.name = k;
+    
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "remove-field-btn";
+    removeBtn.innerHTML = "&times;";
+    removeBtn.title = "Remove Field";
+    removeBtn.onclick = async () => {
+      if (confirm(`Remove field "${k}"?`)) {
+        const s = await getStorage(["profiles", "activeProfile"]);
+        delete s.profiles[s.activeProfile][k];
+        // If it's a standard field, we just want to clear its value in storage
+        // but it will still show up in the UI because it's in STANDARD_FIELDS
+        // However, if the user explicitly wants to "remove" it, they might mean
+        // they don't want to see it. But for now, let's just clear the value
+        // and if it's a custom field, it will actually disappear.
+        await setStorage({ profiles: s.profiles });
+        renderForm(container, s.profiles[s.activeProfile]);
+      }
+    };
+
     grid.appendChild(l);
     grid.appendChild(input);
+    grid.appendChild(removeBtn);
   }
   container.appendChild(grid);
 }
@@ -65,16 +101,37 @@ function renderForm(container, profile) {
 async function init() {
   const state = await getStorage(["profiles", "activeProfile"]);
   const profiles = state.profiles || {};
-  const profileSelect = document.getElementById("profileSelect");
-  profileSelect.innerHTML = "";
-  Object.keys(profiles).forEach(name => {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    profileSelect.appendChild(opt);
-  });
-  profileSelect.value = state.activeProfile || Object.keys(profiles)[0] || "";
-  renderForm(document.getElementById("form"), profiles[profileSelect.value] || {});
+  const profileNames = Object.keys(profiles);
+
+  const setupView = document.getElementById("setupView");
+  const mainView = document.getElementById("mainView");
+
+  if (profileNames.length === 0) {
+    setupView.classList.remove("hidden");
+    mainView.classList.add("hidden");
+  } else {
+    setupView.classList.add("hidden");
+    mainView.classList.remove("hidden");
+    
+    const profileSelect = document.getElementById("profileSelect");
+    const profileRow = profileSelect.closest(".row");
+    profileSelect.innerHTML = "";
+    profileNames.forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      profileSelect.appendChild(opt);
+    });
+
+    if (profileNames.length <= 1) {
+      profileRow.classList.add("hidden");
+    } else {
+      profileRow.classList.remove("hidden");
+    }
+
+    profileSelect.value = state.activeProfile || profileNames[0] || "";
+    renderForm(document.getElementById("form"), profiles[profileSelect.value] || {});
+  }
 }
 
 function gatherProfile() {
@@ -93,50 +150,48 @@ function gatherProfile() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  init();
+    init();
+
+    document.getElementById("createFirstProfile").addEventListener("click", async () => {
+    const name = document.getElementById("initialProfileName").value.trim();
+    if (!name) {
+      document.getElementById("status").textContent = "Please enter a profile name.";
+      return;
+    }
+    const profiles = {};
+    const newProfile = {};
+    STANDARD_FIELDS.forEach(f => newProfile[f] = "");
+    profiles[name] = newProfile;
+    await setStorage({ profiles: profiles, activeProfile: name });
+    init(); // Refresh UI to show mainView
+  });
+
   document.getElementById("profileSelect").addEventListener("change", async e => {
     const name = e.target.value;
     const s = await getStorage(["profiles"]);
     renderForm(document.getElementById("form"), s.profiles[name] || {});
     await setStorage({ activeProfile: name });
+    // Keep edit container hidden when switching profiles unless already open?
+    // Let's hide it for a clean switch
+    document.getElementById("editContainer").classList.add("hidden");
+    document.getElementById("saveProfile").classList.add("hidden");
+    document.getElementById("toggleEdit").textContent = "Edit Fields";
   });
+
+  document.getElementById("toggleEdit").addEventListener("click", () => {
+    const container = document.getElementById("editContainer");
+    const saveBtn = document.getElementById("saveProfile");
+    const isHidden = container.classList.toggle("hidden");
+    saveBtn.classList.toggle("hidden", isHidden);
+    document.getElementById("toggleEdit").textContent = isHidden ? "Edit Fields" : "Hide Fields";
+  });
+
   document.getElementById("saveProfile").addEventListener("click", async () => {
     const s = await getStorage(["profiles", "activeProfile"]);
     const p = gatherProfile();
     s.profiles[s.activeProfile] = p;
     await setStorage({ profiles: s.profiles });
     document.getElementById("status").textContent = "Profile saved.";
-  });
-  document.getElementById("addProfile").addEventListener("click", async () => {
-    const name = document.getElementById("newProfileName").value.trim();
-    if (!name) return;
-    const s = await getStorage(["profiles"]);
-    const baseName = Object.keys(s.profiles)[0];
-    const base = s.profiles[baseName];
-    s.profiles[name] = { ...base };
-    await setStorage({ profiles: s.profiles, activeProfile: name });
-    const sel = document.getElementById("profileSelect");
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    sel.appendChild(opt);
-    sel.value = name;
-    renderForm(document.getElementById("form"), s.profiles[name]);
-    document.getElementById("newProfileName").value = "";
-    document.getElementById("status").textContent = "Profile added.";
-  });
-  document.getElementById("deleteProfile").addEventListener("click", async () => {
-    const s = await getStorage(["profiles", "activeProfile"]);
-    const names = Object.keys(s.profiles);
-    if (names.length <= 1) return;
-    delete s.profiles[s.activeProfile];
-    const next = names.find(n => n !== s.activeProfile) || names[0];
-    await setStorage({ profiles: s.profiles, activeProfile: next });
-    const sel = document.getElementById("profileSelect");
-    Array.from(sel.options).forEach(o => { if (o.value === s.activeProfile) o.remove(); });
-    sel.value = next;
-    renderForm(document.getElementById("form"), s.profiles[next]);
-    document.getElementById("status").textContent = "Profile deleted.";
   });
 
   document.getElementById("addFieldBtn").addEventListener("click", async () => {

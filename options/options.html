@@ -8,17 +8,43 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>Settings</h1>
-    <div class="row">
-      <label>Active Profile</label>
-      <select id="profileSelect"></select>
+    <h1><span>⚙️</span> AutoForm Pro Settings</h1>
+    
+    <div class="section">
+      <h3>Profile Management</h3>
+      <p class="desc">Switch between your profiles or create new ones.</p>
+      <div class="row">
+        <label>Active Profile</label>
+        <select id="profileSelect"></select>
+      </div>
+      <div class="row">
+        <input id="newProfileName" placeholder="Enter new profile name">
+        <button id="addProfile">Add New</button>
+        <button id="deleteProfile" class="danger">Delete Active</button>
+      </div>
     </div>
-    <div class="row">
-      <button id="exportProfiles">Export Profiles</button>
-      <input type="file" id="importFile" accept="application/json">
-      <button id="importProfiles">Import Profiles</button>
+
+    <div class="section">
+      <h3>Data Backup</h3>
+      <p class="desc">Export your profiles to a file or import them back.</p>
+      <div class="row">
+        <button id="exportProfiles" class="secondary">Export to JSON</button>
+      </div>
+      <div class="row import-row">
+        <label class="file-label">
+          <span>Choose File</span>
+          <input type="file" id="importFile" accept="application/json">
+        </label>
+        <span id="fileNameDisplay" class="file-name-text">No file chosen</span>
+        <button id="importProfiles">Import Data</button>
+      </div>
     </div>
+
     <div id="status"></div>
+    
+    <div class="footer">
+      <p>AutoForm Pro &copy; 2026</p>
+    </div>
   </div>
   <script src="options.js"></script>
 </body>
