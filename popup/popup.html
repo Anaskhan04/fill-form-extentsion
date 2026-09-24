@@ -12,18 +12,31 @@
     
     <!-- Setup View: First time user -->
     <div id="setupView" class="hidden">
-      <p>Create your first profile to get started.</p>
+      <p>Create your first profile or import a JSON profile file to get started.</p>
       <div class="row">
         <input id="initialProfileName" placeholder="Profile name (e.g., Personal)">
         <button id="createFirstProfile">Create Profile</button>
+      </div>
+      <div class="divider" style="margin: 14px 0; text-align: center; color: var(--text-muted); font-size: 12px;">— OR —</div>
+      <div class="row">
+        <button id="setupImportBtn" style="width: 100%; background-color: #6366f1;">📥 Import JSON Profile File</button>
+        <input type="file" id="setupImportFile" accept="application/json" class="hidden">
       </div>
     </div>
 
     <!-- Main View: Regular use -->
     <div id="mainView" class="hidden">
-      <div class="row">
-        <label>Active Profile</label>
+      <div class="row profile-header-row">
+        <label>Active Profile:</label>
         <select id="profileSelect"></select>
+      </div>
+
+      <!-- Live Profile Overview Card -->
+      <div id="profileOverview" class="profile-card">
+        <div class="card-item"><span class="card-label">👤 Name:</span> <span id="previewName" class="card-value">—</span></div>
+        <div class="card-item"><span class="card-label">✉️ Email:</span> <span id="previewEmail" class="card-value">—</span></div>
+        <div class="card-item"><span class="card-label">📞 Phone:</span> <span id="previewPhone" class="card-value">—</span></div>
+        <div class="card-item"><span class="card-label">📍 Address:</span> <span id="previewAddress" class="card-value">—</span></div>
       </div>
 
       <div class="actions">
@@ -31,6 +44,12 @@
         <button id="clearFields" style="background-color: #f44336;">Clear Fields</button>
         <button id="saveProfile" class="hidden" style="background-color: #059669;">Save Changes</button>
         <button id="toggleEdit" style="background-color: #4b5563;">Edit Fields</button>
+      </div>
+
+      <div class="actions secondary-actions">
+        <button id="importJsonBtn" style="background-color: #6366f1;">📥 Import JSON</button>
+        <input type="file" id="mainImportFile" accept="application/json" class="hidden">
+        <button id="exportJsonBtn" style="background-color: #0284c7;">📤 Export JSON</button>
       </div>
 
       <div id="editContainer" class="hidden">
