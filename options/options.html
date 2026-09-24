@@ -8,44 +8,75 @@
 </head>
 <body>
   <div class="wrap">
-    <h1><span>⚙️</span> AutoForm Pro Settings</h1>
+    <div class="header">
+      <h1><span>⚙️</span> AutoForm Pro Settings</h1>
+      <p class="subtitle">Manage user profiles, field data, and JSON backup settings.</p>
+    </div>
     
+    <div id="status" class="status-banner"></div>
+
+    <!-- Section 1: Profile Selection & Management -->
     <div class="section">
       <h3>Profile Management</h3>
-      <p class="desc">Switch between your profiles or create new ones.</p>
+      <p class="desc">Switch between saved profiles, create new ones, or delete the active profile.</p>
+      
       <div class="row">
-        <label>Active Profile</label>
+        <label for="profileSelect">Active Profile</label>
         <select id="profileSelect"></select>
       </div>
+      
       <div class="row">
-        <input id="newProfileName" placeholder="Enter new profile name">
+        <input id="newProfileName" placeholder="Enter new profile name (e.g., Job Applications)">
         <button id="addProfile">Add New</button>
         <button id="deleteProfile" class="danger">Delete Active</button>
       </div>
     </div>
 
+    <!-- Section 2: Profile Fields Editor -->
     <div class="section">
-      <h3>Data Backup</h3>
-      <p class="desc">Export your profiles to a file or import them back.</p>
-      <div class="row">
-        <button id="exportProfiles" class="secondary">Export to JSON</button>
+      <div class="section-header">
+        <h3>Profile Fields & Data</h3>
+        <button id="saveFieldsBtn" class="success-btn">💾 Save All Profile Changes</button>
       </div>
-      <div class="row import-row">
-        <label class="file-label">
-          <span>Choose File</span>
-          <input type="file" id="importFile" accept="application/json">
-        </label>
-        <span id="fileNameDisplay" class="file-name-text">No file chosen</span>
-        <button id="importProfiles">Import Data</button>
+      <p class="desc">Edit profile values below. These fields will be automatically used to fill web forms.</p>
+      
+      <div id="optionsFormContainer" class="form-container">
+        <!-- Dynamic field rows rendered here -->
+      </div>
+
+      <div class="add-custom-card">
+        <h4>Add Custom Field</h4>
+        <div class="row">
+          <input id="newFieldKey" placeholder="Field Name (e.g. passport_number)" style="flex: 1;">
+          <input id="newFieldValue" placeholder="Value" style="flex: 1.5;">
+          <button id="addFieldBtn" class="secondary">+ Add Field</button>
+        </div>
       </div>
     </div>
 
-    <div id="status"></div>
+    <!-- Section 3: Data Import / Export -->
+    <div class="section">
+      <h3>Data Backup & Restore</h3>
+      <p class="desc">Export your profiles to a JSON file or import profile JSON files.</p>
+      
+      <div class="row backup-row">
+        <button id="exportProfiles" class="secondary">📤 Export Profiles to JSON</button>
+        
+        <div class="import-group">
+          <label class="file-label" for="importFile">
+            <span>📁 Choose JSON File</span>
+            <input type="file" id="importFile" accept="application/json">
+          </label>
+          <span id="fileNameDisplay" class="file-name-text">No file chosen</span>
+          <button id="importProfiles" class="import-btn">📥 Import Data</button>
+        </div>
+      </div>
+    </div>
     
     <div class="footer">
-      <p>AutoForm Pro &copy; 2026</p>
+      <p>AutoForm Pro &copy; 2026 — Intelligent Form Automation</p>
     </div>
   </div>
   <script src="options.js"></script>
 </body>
-<html>
+</html>
