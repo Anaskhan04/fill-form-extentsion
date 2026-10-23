@@ -1,5 +1,40 @@
 const AFP_STATE = { profiles: null, activeProfile: null, autoFillEnabled: false };
 
+// ---------------------------------------------------------------------------
+// User-edit tracking
+// The MutationObserver re-runs fillAll(false) on every DOM change. Without a
+// record of user intent it immediately re-applies profile values to fields the
+// user just edited or cleared. We remember the fields the user has touched and
+// skip them during background (non-explicit) fills.
+// ---------------------------------------------------------------------------
+const AFP_USER_TOUCHED = new WeakSet();
+
+// True only while the extension is writing values itself, so the input/change
+// events we dispatch are never mistaken for real user edits.
+let AFP_INTERNAL_WRITE = false;
+
+function markFieldUserTouched(el) {
+  if (!(el instanceof Element)) return;
+  AFP_USER_TOUCHED.add(el);
+  // A radio choice applies to the whole group, so protect every sibling too.
+  if (el instanceof HTMLInputElement && el.type === "radio" && el.name) {
+    try {
+      const group = el.ownerDocument.querySelectorAll(`input[type=radio][name="${CSS.escape(el.name)}"]`);
+      for (const r of group) AFP_USER_TOUCHED.add(r);
+    } catch (e) {}
+  }
+}
+
+document.addEventListener("input", e => {
+  if (AFP_INTERNAL_WRITE) return;
+  markFieldUserTouched(e.target);
+}, true);
+
+document.addEventListener("change", e => {
+  if (AFP_INTERNAL_WRITE) return;
+  markFieldUserTouched(e.target);
+}, true);
+
 function normalizeText(s) {
   if (!s) return "";
   return String(s)
@@ -1005,24 +1040,32 @@ function fillAll(force) {
   let radiosAttempted = 0;
   let radiosMatched = 0;
   const fields = eligibleFields();
-  for (const el of fields) {
-    if (!(el instanceof Element)) continue;
-    if (!shouldFill(el, force)) continue;
-    const isRadioEl = (el.getAttribute && el.getAttribute("type") === "radio") || (el.getAttribute && el.getAttribute("role") === "radio");
-    if (isRadioEl) radiosAttempted++;
-    const c = fieldCandidates(el);
-    const key = pickKey(c, el);
-    if (key) {
-      const val = valueForKey(profile, key);
-      if (!val) {
-        el.classList.add("afp-unknown");
-        detected++;
-        continue;
+  AFP_INTERNAL_WRITE = true;
+  try {
+    for (const el of fields) {
+      if (!(el instanceof Element)) continue;
+      if (!shouldFill(el, force)) continue;
+      // A background/observer fill (force is falsy) must never overwrite a field
+      // the user edited or cleared. Only an explicit Fill may replace user values.
+      if (!force && AFP_USER_TOUCHED.has(el)) continue;
+      const isRadioEl = (el.getAttribute && el.getAttribute("type") === "radio") || (el.getAttribute && el.getAttribute("role") === "radio");
+      if (isRadioEl) radiosAttempted++;
+      const c = fieldCandidates(el);
+      const key = pickKey(c, el);
+      if (key) {
+        const val = valueForKey(profile, key);
+        if (!val) {
+          el.classList.add("afp-unknown");
+          detected++;
+          continue;
+        }
+        const ok = setValue(el, val, key);
+        if (isRadioEl && ok) radiosMatched++;
+        if (ok) filled++; else detected++;
       }
-      const ok = setValue(el, val, key);
-      if (isRadioEl && ok) radiosMatched++;
-      if (ok) filled++; else detected++;
     }
+  } finally {
+    AFP_INTERNAL_WRITE = false;
   }
 
   if (force) {
@@ -1071,6 +1114,9 @@ function clearAll() {
   let cleared = 0;
   for (const el of fields) {
     if (!(el instanceof Element)) continue;
+
+    // Remember this field so the MutationObserver will not refill it afterwards.
+    markFieldUserTouched(el);
     
     if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
       if (el.type === "checkbox" || el.type === "radio") {
